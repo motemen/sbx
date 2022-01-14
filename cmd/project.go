@@ -11,23 +11,20 @@ var projectCmd = &cobra.Command{
 	Use:   "project <name>",
 	Short: "Show project",
 	Args:  cobra.ExactArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
+	Run: func(cmd *cobra.Command, args []string) {
 		projectName := args[0]
 
 		if optSession == "" {
 			var err error
 			optSession, err = config.GetSession(projectName)
-			if err != nil {
-				return err
-			}
+			cobra.CheckErr(err)
 		}
 
 		project, err := sbapi.GetProject(projectName, sbapi.WithSessionID(optSession))
-		if err != nil {
-			return err
-		}
+		cobra.CheckErr(err)
 
-		return printResult(project, optJQQuery.Query)
+		err = printResult(project, optJQQuery.Query)
+		cobra.CheckErr(err)
 	},
 }
 

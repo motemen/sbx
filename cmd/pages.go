@@ -25,15 +25,13 @@ var pagesCmd = &cobra.Command{
 	Use:   "pages <project>",
 	Short: "List pages in project",
 	Args:  cobra.ExactArgs(1),
-	RunE: func(cmd *cobra.Command, args []string) error {
+	Run: func(cmd *cobra.Command, args []string) {
 		projectName := args[0]
 
 		if optSession == "" {
 			var err error
 			optSession, err = config.GetSession(projectName)
-			if err != nil {
-				return err
-			}
+			cobra.CheckErr(err)
 		}
 
 		pages, err := sbapi.ListPages(
@@ -41,11 +39,10 @@ var pagesCmd = &cobra.Command{
 			sbapi.WithSessionID(optSession),
 			sbapi.WithLimit(limit),
 		)
-		if err != nil {
-			return err
-		}
+		cobra.CheckErr(err)
 
-		return printResult(pages, optJQQuery.Query)
+		err = printResult(pages, optJQQuery.Query)
+		cobra.CheckErr(err)
 	},
 }
 
