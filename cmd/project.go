@@ -8,7 +8,11 @@ import (
 )
 
 var projectCmd = &cobra.Command{
-	Use:   "project <name>",
+	Use: "project",
+}
+
+var projectShowCmd = &cobra.Command{
+	Use:   "show <project>",
 	Short: "Show project",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -30,4 +34,6 @@ var projectCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(projectCmd)
+
+	projectCmd.AddCommand(projectShowCmd)
 }

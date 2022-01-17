@@ -8,15 +8,15 @@ Usage
 
 ### project
 
-    sbx project <project>
+    sbx project show <project>
 
 Prints JSON for _project_.
 
 Requests `https://scrapbox.io/api/projects/<project>`
 
-### pages
+### page
 
-    sbx project [-l <limit>] <project>
+    sbx page list [-L <limit>] <project>
 
 Prints JSON array of pages in _project_.
 
