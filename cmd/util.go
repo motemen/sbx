@@ -12,15 +12,23 @@ func printResult(v interface{}, jqQuery *gojq.Query) error {
 		return printJSON(v)
 	}
 
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
+	// Convert to interface{}
+	// https://github.com/itchyny/gojq#usage-as-a-library
+	iface := v
+	if _, ok := iface.([]interface{}); ok {
+		// nop
+	} else if _, ok := iface.(map[string]interface{}); ok {
+		// nop
+	} else {
+		b, err := json.Marshal(iface)
+		if err != nil {
+			return err
+		}
 
-	var iface interface{}
-	err = json.Unmarshal(b, &iface)
-	if err != nil {
-		return err
+		err = json.Unmarshal(b, &iface)
+		if err != nil {
+			return err
+		}
 	}
 
 	iter := jqQuery.Run(iface)

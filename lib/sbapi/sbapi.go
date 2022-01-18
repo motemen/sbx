@@ -86,7 +86,7 @@ func WithLimit(n uint) Option {
 	}
 }
 
-func requestJSON(url string, v interface{}, opts ...Option) error {
+func RequestJSON(url string, v interface{}, opts ...Option) error {
 	wrapError := func(err error, message string) error {
 		if err == nil {
 			return err
@@ -154,7 +154,7 @@ func requestJSON(url string, v interface{}, opts ...Option) error {
 func GetProject(projectName string, opts ...Option) (*Project, error) {
 	var p Project
 
-	err := requestJSON(
+	err := RequestJSON(
 		fmt.Sprintf("https://scrapbox.io/api/projects/%s", projectName),
 		&p,
 		opts...,
