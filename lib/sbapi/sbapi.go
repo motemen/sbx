@@ -37,7 +37,7 @@ type Project struct {
 	DisplayName string `json:"displayName"`
 	Image       string `json:"image,omitempty"`
 
-	RawMessage json.RawMessage `json:"-"`
+	rawJSON json.RawMessage `json:"-"`
 }
 
 type Page struct {
@@ -48,7 +48,7 @@ type Page struct {
 	Created      Time     `json:"created"`
 	Updated      Time     `json:"updated"`
 
-	RawMessage json.RawMessage `json:"-"`
+	rawJSON json.RawMessage `json:"-"`
 }
 
 type Time time.Time

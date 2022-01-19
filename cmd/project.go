@@ -8,7 +8,8 @@ import (
 )
 
 var projectCmd = &cobra.Command{
-	Use: "project",
+	Use:   "project",
+	Short: "Project related commands",
 }
 
 var projectShowCmd = &cobra.Command{

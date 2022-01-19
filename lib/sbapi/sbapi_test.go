@@ -46,8 +46,8 @@ func TestPageWithRawMessage_UnmarshalJSON(t *testing.T) {
 		assert.Assert(t, is.Contains(string(encodedJSON), `"__extra__"`))
 	})
 
-	t.Run("can work fine without RawMessage", func(t *testing.T) {
-		page.RawMessage = nil
+	t.Run("can work fine without rawJSON", func(t *testing.T) {
+		page.rawJSON = nil
 		encodedJSON, err := json.Marshal(page)
 		assert.NilError(t, err)
 

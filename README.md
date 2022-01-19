@@ -16,7 +16,7 @@ Requests `https://scrapbox.io/api/projects/<project>`
 
 ### page
 
-    sbx page list [-L <limit>] <project>
+    sbx page list [--limit <limit>] <project>
 
 Prints JSON array of pages in _project_.
 

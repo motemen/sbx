@@ -8,11 +8,12 @@ import (
 )
 
 var pageCmd = &cobra.Command{
-	Use: "page",
+	Use:   "page",
+	Short: "Page related commands",
 }
 
 var pageListCmd = &cobra.Command{
-	Use:  "list <project>",
+	Use:  "list [--limit <limit>] <project>",
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		projectName := args[0]
