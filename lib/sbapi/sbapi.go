@@ -180,46 +180,8 @@ func ListPages(projectName string, opts ...Option) ([]Page, error) {
 			url += fmt.Sprintf("&limit=%d", opt.limit)
 		}
 
-		req, err := http.NewRequest("GET", url, nil)
-		if err != nil {
-			return nil, err
-		}
-
-		if opt.sessionID != "" {
-			req.AddCookie(
-				&http.Cookie{
-					Name:  "connect.sid",
-					Value: opt.sessionID,
-				},
-			)
-		}
-
-		resp, err := http.DefaultClient.Do(req)
-		if err != nil {
-			return nil, err
-		}
-
-		data, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return nil, err
-		}
-
-		err = resp.Body.Close()
-		if err != nil {
-			return nil, err
-		}
-
-		if resp.StatusCode >= 400 {
-			var errResp ErrorResponse
-			err = json.Unmarshal(data, &errResp)
-			if err != nil {
-				return nil, err
-			}
-			return nil, fmt.Errorf("%s: %s", errResp.Name, errResp.Message)
-		}
-
 		var pagesResp PagesResponse
-		err = json.Unmarshal(data, &pagesResp)
+		err := RequestJSON(url, &pagesResp, opts...)
 		if err != nil {
 			return nil, err
 		}

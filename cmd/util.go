@@ -25,10 +25,13 @@ func printResult(v interface{}, jqQuery *gojq.Query) error {
 			return err
 		}
 
-		err = json.Unmarshal(b, &iface)
+		var v interface{}
+		err = json.Unmarshal(b, &v)
 		if err != nil {
 			return err
 		}
+
+		iface = v
 	}
 
 	iter := jqQuery.Run(iface)
