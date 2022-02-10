@@ -5,9 +5,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"mime"
 	"net/http"
+	"strings"
 	"time"
 )
+
+type HTTPError http.Response
+
+func (e HTTPError) Error() string {
+	return fmt.Sprintf("%s: %s", e.Request.URL, e.Status)
+}
 
 type APIError struct {
 	URL      string
@@ -133,7 +141,13 @@ func RequestJSON(url string, v interface{}, opts ...Option) error {
 		return err
 	}
 
+	mediaType, _, _ := mime.ParseMediaType(resp.Header.Get("Content-Type"))
+
 	if resp.StatusCode >= 400 {
+		if mediaType != "application/json" {
+			return (*HTTPError)(resp)
+		}
+
 		var errResp ErrorResponse
 		err = json.Unmarshal(data, &errResp)
 		if err != nil {
@@ -145,6 +159,24 @@ func RequestJSON(url string, v interface{}, opts ...Option) error {
 			Response: errResp,
 		}
 		return wrapError(err, "")
+	}
+
+	if strings.HasPrefix(mediaType, "text/") {
+		switch x := v.(type) {
+		case *string:
+			*x = string(data)
+
+		case *[]byte:
+			*x = append([]byte{}, data...)
+
+		case *interface{}:
+			*x = append([]byte{}, data...)
+
+		default:
+			return fmt.Errorf("cannot handle %T for %s", v, mediaType)
+		}
+
+		return nil
 	}
 
 	err = json.Unmarshal(data, v)

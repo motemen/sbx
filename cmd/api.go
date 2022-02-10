@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -29,9 +28,7 @@ var apiCmd = &cobra.Command{
 			projectName = parts[2]
 		}
 
-		fmt.Println(projectName)
-
-		var v json.RawMessage
+		var v interface{}
 		if optSession == "" {
 			var err error
 			optSession, err = config.GetSession(projectName)
@@ -41,7 +38,13 @@ var apiCmd = &cobra.Command{
 		err := sbapi.RequestJSON("https://scrapbox.io/"+path, &v, sbapi.WithSessionID(optSession))
 		cobra.CheckErr(err)
 
-		printResult(v, optJQQuery.Query)
+		if b, ok := v.([]byte); ok {
+			fmt.Print(string(b))
+			return
+		}
+
+		err = printResult(v, optJQQuery.Query)
+		cobra.CheckErr(err)
 	},
 }
 

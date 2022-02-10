@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -52,8 +53,11 @@ func Load() (*Config, error) {
 
 	var config Config
 	err = json.Unmarshal(b, &config)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", configPath, err)
+	}
 
-	return &config, err
+	return &config, nil
 }
 
 func (conf *Config) GetSession(projectName string) (string, error) {
