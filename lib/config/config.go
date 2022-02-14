@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/google/shlex"
+	"github.com/motemen/sbx/lib/sbapi"
 )
 
 type Config struct {
@@ -18,6 +19,9 @@ type Config struct {
 type ProjectConfig struct {
 	// Session configuration for specific project (or default).
 	Session *SessionConfig `json:"session,omitempty"`
+
+	Origin  string            `json:"origin,omitempty"`
+	Headers map[string]string `json:"headers,omitempty"`
 }
 
 type SessionConfig struct {
@@ -28,6 +32,32 @@ type SessionConfig struct {
 	Value string `json:"value,omitempty"`
 }
 
+func GetOptions(projectName string) ([]sbapi.Option, error) {
+	options := []sbapi.Option{}
+
+	projectConf, err := GetProjectConfig(projectName)
+	if err != nil {
+		return nil, err
+	}
+
+	session, err := GetSession(projectName)
+	if err != nil {
+		return nil, err
+	}
+
+	options = append(options, sbapi.WithSessionID(session))
+
+	if projectConf.Origin != "" {
+		options = append(options, sbapi.WithOrigin(projectConf.Origin))
+	}
+
+	if projectConf.Headers != nil {
+		options = append(options, sbapi.WithHeaders(projectConf.Headers))
+	}
+
+	return options, nil
+}
+
 func GetSession(projectName string) (string, error) {
 	conf, err := Load()
 	if err != nil {
@@ -35,6 +65,16 @@ func GetSession(projectName string) (string, error) {
 	}
 
 	return conf.GetSession(projectName)
+}
+
+func GetProjectConfig(projectName string) (*ProjectConfig, error) {
+	conf, err := Load()
+	if err != nil {
+		return nil, err
+	}
+
+	p := conf.GetProjectConfig(projectName)
+	return &p, nil
 }
 
 func Load() (*Config, error) {
@@ -94,4 +134,26 @@ func (conf *Config) GetProjectConfig(name string) (p ProjectConfig) {
 	}
 
 	return
+}
+
+func (p ProjectConfig) GetSession() (string, error) {
+	if p.Session == nil {
+		return "", nil
+	}
+
+	if p.Session.Command != "" {
+		parts, err := shlex.Split(p.Session.Command)
+		if err != nil {
+			return "", err
+		}
+
+		b, err := exec.Command(parts[0], parts[1:]...).Output()
+		return string(b), err
+	}
+
+	if p.Session.Value != "" {
+		return p.Session.Value, nil
+	}
+
+	return "", nil
 }

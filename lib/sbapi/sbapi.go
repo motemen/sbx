@@ -78,6 +78,8 @@ func (t Time) MarshalJSON() ([]byte, error) {
 type options struct {
 	sessionID string
 	limit     uint
+	origin    string
+	headers   map[string]string
 }
 
 type Option func(*options)
@@ -94,17 +96,29 @@ func WithLimit(n uint) Option {
 	}
 }
 
-func RequestJSON(url string, v interface{}, opts ...Option) error {
+func WithOrigin(origin string) Option {
+	return func(o *options) {
+		o.origin = origin
+	}
+}
+
+func WithHeaders(h map[string]string) Option {
+	return func(o *options) {
+		o.headers = h
+	}
+}
+
+func RequestJSON(path string, v interface{}, opts ...Option) error {
 	wrapError := func(err error, message string) error {
 		if err == nil {
 			return err
 		}
 
 		if message == "" {
-			return fmt.Errorf("%s %s: %w", "GET", url, err)
+			return fmt.Errorf("%s %s: %w", "GET", path, err)
 		}
 
-		return fmt.Errorf("%s %s: %s: %w", "GET", url, message, err)
+		return fmt.Errorf("%s %s: %s: %w", "GET", path, message, err)
 	}
 
 	var opt options
@@ -112,6 +126,12 @@ func RequestJSON(url string, v interface{}, opts ...Option) error {
 		o(&opt)
 	}
 
+	origin := "https://scrapbox.io"
+	if opt.origin != "" {
+		origin = opt.origin
+	}
+
+	url := origin + path
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return err
@@ -124,6 +144,10 @@ func RequestJSON(url string, v interface{}, opts ...Option) error {
 				Value: opt.sessionID,
 			},
 		)
+	}
+
+	for k, v := range opt.headers {
+		req.Header.Add(k, v)
 	}
 
 	resp, err := http.DefaultClient.Do(req)
@@ -187,7 +211,7 @@ func GetProject(projectName string, opts ...Option) (*Project, error) {
 	var p Project
 
 	err := RequestJSON(
-		fmt.Sprintf("https://scrapbox.io/api/projects/%s", projectName),
+		fmt.Sprintf("/api/projects/%s", projectName),
 		&p,
 		opts...,
 	)
@@ -207,7 +231,7 @@ func ListPages(projectName string, opts ...Option) ([]Page, error) {
 	pages := []Page{}
 
 	for {
-		url := fmt.Sprintf("https://scrapbox.io/api/pages/%s?skip=%d", projectName, len(pages))
+		url := fmt.Sprintf("/api/pages/%s?skip=%d", projectName, len(pages))
 		if opt.limit != 0 {
 			url += fmt.Sprintf("&limit=%d", opt.limit)
 		}

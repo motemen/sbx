@@ -20,7 +20,7 @@ var apiCmd = &cobra.Command{
 			path = "api/" + path
 		}
 
-		// Guess project name
+		// XXX: Guess project name
 		// path should be shape of api/<category>/<project>
 		// https://scrapbox.io/scrapboxlab/Scrapbox_API%E3%81%AE%E4%B8%80%E8%A6%A7
 		var projectName string
@@ -35,7 +35,7 @@ var apiCmd = &cobra.Command{
 			cobra.CheckErr(err)
 		}
 
-		err := sbapi.RequestJSON("https://scrapbox.io/"+path, &v, sbapi.WithSessionID(optSession))
+		err := sbapi.RequestJSON("/"+path, &v, sbapi.WithSessionID(optSession))
 		cobra.CheckErr(err)
 
 		if b, ok := v.([]byte); ok {

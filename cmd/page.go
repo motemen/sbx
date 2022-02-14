@@ -18,16 +18,18 @@ var pageListCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		projectName := args[0]
 
-		if optSession == "" {
-			var err error
-			optSession, err = config.GetSession(projectName)
-			cobra.CheckErr(err)
+		opts, err := config.GetOptions(projectName)
+		cobra.CheckErr(err)
+
+		if optSession != "" {
+			opts = append(opts, sbapi.WithSessionID(optSession))
 		}
+
+		opts = append(opts, sbapi.WithLimit(limit))
 
 		pages, err := sbapi.ListPages(
 			projectName,
-			sbapi.WithSessionID(optSession),
-			sbapi.WithLimit(limit),
+			opts...,
 		)
 		cobra.CheckErr(err)
 
