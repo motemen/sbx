@@ -3,7 +3,6 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/motemen/sbx/lib/config"
 	"github.com/motemen/sbx/lib/sbapi"
 )
 
@@ -19,13 +18,10 @@ var projectShowCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		projectName := args[0]
 
-		if optSession == "" {
-			var err error
-			optSession, err = config.GetSession(projectName)
-			cobra.CheckErr(err)
-		}
+		opts, err := buildApiOptions(projectName)
+		cobra.CheckErr(err)
 
-		project, err := sbapi.GetProject(projectName, sbapi.WithSessionID(optSession))
+		project, err := sbapi.GetProject(projectName, opts...)
 		cobra.CheckErr(err)
 
 		err = printResult(project, optJQQuery.Query)

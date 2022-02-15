@@ -21,6 +21,7 @@ type ProjectConfig struct {
 	Session *SessionConfig `json:"session,omitempty"`
 
 	Origin  string            `json:"origin,omitempty"`
+	Host    string            `json:"host,omitempty"`
 	Headers map[string]string `json:"headers,omitempty"`
 }
 
@@ -49,6 +50,10 @@ func GetOptions(projectName string) ([]sbapi.Option, error) {
 
 	if projectConf.Origin != "" {
 		options = append(options, sbapi.WithOrigin(projectConf.Origin))
+	}
+
+	if projectConf.Host != "" {
+		options = append(options, sbapi.WithHost(projectConf.Host))
 	}
 
 	if projectConf.Headers != nil {

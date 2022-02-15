@@ -3,7 +3,6 @@ package cmd
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/motemen/sbx/lib/config"
 	"github.com/motemen/sbx/lib/sbapi"
 )
 
@@ -18,12 +17,8 @@ var pageListCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		projectName := args[0]
 
-		opts, err := config.GetOptions(projectName)
+		opts, err := buildApiOptions(projectName)
 		cobra.CheckErr(err)
-
-		if optSession != "" {
-			opts = append(opts, sbapi.WithSessionID(optSession))
-		}
 
 		opts = append(opts, sbapi.WithLimit(limit))
 

@@ -8,6 +8,8 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/motemen/go-loghttp"
+	"github.com/motemen/sbx/lib/config"
+	"github.com/motemen/sbx/lib/sbapi"
 )
 
 var rootCmd = &cobra.Command{
@@ -26,6 +28,19 @@ var (
 	optJQQuery jqQueryFlag
 	optSession string
 )
+
+func buildApiOptions(projectName string) ([]sbapi.Option, error) {
+	opts, err := config.GetOptions(projectName)
+	if err != nil {
+		return nil, err
+	}
+
+	if optSession != "" {
+		opts = append(opts, sbapi.WithSessionID(optSession))
+	}
+
+	return opts, nil
+}
 
 type jqQueryFlag struct {
 	*gojq.Query

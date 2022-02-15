@@ -6,7 +6,6 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/motemen/sbx/lib/config"
 	"github.com/motemen/sbx/lib/sbapi"
 )
 
@@ -28,14 +27,11 @@ var apiCmd = &cobra.Command{
 			projectName = parts[2]
 		}
 
-		var v interface{}
-		if optSession == "" {
-			var err error
-			optSession, err = config.GetSession(projectName)
-			cobra.CheckErr(err)
-		}
+		opts, err := buildApiOptions(projectName)
+		cobra.CheckErr(err)
 
-		err := sbapi.RequestJSON("/"+path, &v, sbapi.WithSessionID(optSession))
+		var v interface{}
+		err = sbapi.RequestJSON("/"+path, &v, opts...)
 		cobra.CheckErr(err)
 
 		if b, ok := v.([]byte); ok {

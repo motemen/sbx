@@ -79,6 +79,7 @@ type options struct {
 	sessionID string
 	limit     uint
 	origin    string
+	host      string
 	headers   map[string]string
 }
 
@@ -99,6 +100,12 @@ func WithLimit(n uint) Option {
 func WithOrigin(origin string) Option {
 	return func(o *options) {
 		o.origin = origin
+	}
+}
+
+func WithHost(host string) Option {
+	return func(o *options) {
+		o.host = host
 	}
 }
 
@@ -137,6 +144,14 @@ func RequestJSON(path string, v interface{}, opts ...Option) error {
 		return err
 	}
 
+	for k, v := range opt.headers {
+		req.Header.Set(k, v)
+	}
+
+	if opt.host != "" {
+		req.Host = opt.host
+	}
+
 	if opt.sessionID != "" {
 		req.AddCookie(
 			&http.Cookie{
@@ -144,10 +159,6 @@ func RequestJSON(path string, v interface{}, opts ...Option) error {
 				Value: opt.sessionID,
 			},
 		)
-	}
-
-	for k, v := range opt.headers {
-		req.Header.Add(k, v)
 	}
 
 	resp, err := http.DefaultClient.Do(req)
